@@ -6,7 +6,7 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest    # Use an Ubuntu runner
+    runs-on: ubuntu-22.04    # Use an Ubuntu runner
 
     steps:
       - uses: actions/checkout@v3  # Checkout the code from the repository
