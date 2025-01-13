@@ -1,0 +1,23 @@
+name: CI Pipeline
+on: 
+  push:
+    branches:
+      - main   # Trigger the pipeline on pushes to the 'main' branch
+
+jobs:
+  test:
+    runs-on: ubuntu-latest    # Use an Ubuntu runner
+
+    steps:
+      - uses: actions/checkout@v3  # Checkout the code from the repository
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'  # Use Python 3.9 (adjust if needed)
+
+      - name: Install Dependencies
+        run: pip install fastapi uvicorn  # Install the project dependencies
+
+      - name: Run Tests
+        run: echo "Add testing steps here"  # Placeholder for test steps
+
