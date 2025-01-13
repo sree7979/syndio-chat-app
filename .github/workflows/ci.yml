@@ -19,5 +19,5 @@ jobs:
         run: pip install fastapi uvicorn  # Install the project dependencies
 
       - name: Run Tests
-        run: echo "Add testing steps here"  # Placeholder for test steps
+        run: pytest  # Run pytest to execute tests
 
