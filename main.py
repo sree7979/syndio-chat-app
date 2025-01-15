@@ -36,9 +36,10 @@ def get_db():
 
 # Dummy AI responses
 DUMMY_RESPONSES = [
-    "Sure! How can I assist you?",
-    "I'm here to help you with any questions!",
-    "This is a test response from the AI assistant.",
+    "Hi there! I'm a simulated AI assistant.",
+    "Hello! This is a placeholder AI response.",
+    "I'm just a dummy function pretending to be AI.",
+    "Sure! How can I assist you?"
 ]
 
 def get_ai_response(user_message: str) -> str:
@@ -95,8 +96,8 @@ async def get_history(db: Session = Depends(get_db), skip: int = 0, limit: int =
 def test_ai_response():
     response = get_ai_response("Hello")
     assert response in [
-        "Sure! How can I assist you?",
-        "I'm here to help you with any questions!",
-        "This is a test response from the AI assistant.",
-        "Let me know what you need."
+        "Hi there! I'm a simulated AI assistant.",
+        "Hello! This is a placeholder AI response.",
+        "I'm just a dummy function pretending to be AI.",
+        "Sure! How can I assist you?"  # Added this response to the test
     ]
