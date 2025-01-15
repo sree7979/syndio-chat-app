@@ -1,11 +1,9 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 import random
 import logging
 from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
-from fastapi import Depends
-from unittest.mock import patch
 
 app = FastAPI()
 
@@ -40,7 +38,6 @@ def get_db():
 DUMMY_RESPONSES = [
     "Sure! How can I assist you?",
     "I'm here to help you with any questions!",
-    "Let me know what you need.",
     "This is a test response from the AI assistant.",
 ]
 
@@ -63,6 +60,12 @@ async def send_message(message: dict, db: Session = Depends(get_db)):
     ai_response = get_ai_response(user_message)
     logger.info(f"AI response generated: {ai_response}")
 
+    # Check if the message already exists in the database
+    existing_message = db.query(ChatMessage).filter(ChatMessage.user == "User", ChatMessage.message == user_message).first()
+    if existing_message:
+        logger.info(f"Message already exists: {user_message}")
+        return {"response": ai_response}
+
     # Log saved messages
     logger.info(f"Saving user message to database: {user_message}")
     logger.info(f"Saving AI response to database: {ai_response}")
@@ -77,9 +80,9 @@ async def send_message(message: dict, db: Session = Depends(get_db)):
     return {"response": ai_response}
 
 @app.get("/chat/history")
-async def get_history(db: Session = Depends(get_db)):
-    logger.info("Accessing chat history from database.")
-    messages = db.query(ChatMessage).all()
+async def get_history(db: Session = Depends(get_db), skip: int = 0, limit: int = 10):
+    logger.info(f"Accessing chat history from database. Skipping {skip} messages and limiting to {limit}.")
+    messages = db.query(ChatMessage).offset(skip).limit(limit).all()
     
     logger.info(f"Retrieved {len(messages)} messages from the database.")
     return {"history": [{"user": msg.user, "message": msg.message} for msg in messages]}
@@ -90,12 +93,10 @@ async def get_history(db: Session = Depends(get_db)):
 
 # For testing purposes: Ensure consistent AI response for testing
 def test_ai_response():
-    with patch('random.choice', return_value="Sure! How can I assist you?"):
-        response = get_ai_response("Hello")
-        assert response in [
-            "Sure! How can I assist you?",
-            "I'm here to help you with any questions!",
-            "Let me know what you need.",
-            "This is a test response from the AI assistant.",
-        ]
-
+    response = get_ai_response("Hello")
+    assert response in [
+        "Sure! How can I assist you?",
+        "I'm here to help you with any questions!",
+        "This is a test response from the AI assistant.",
+        "Let me know what you need."
+    ]
