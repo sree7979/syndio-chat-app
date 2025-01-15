@@ -5,6 +5,7 @@ from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 from fastapi import Depends
+from unittest.mock import patch
 
 app = FastAPI()
 
@@ -86,3 +87,9 @@ async def get_history(db: Session = Depends(get_db)):
 # Placeholder: Logs can be sent to Datadog or Splunk via their APIs.
 # Example: 
 # logger.info("Sending logs to Datadog API")
+
+# For testing purposes: Ensure consistent AI response for testing
+def test_ai_response():
+    with patch('random.choice', return_value="Sure! How can I assist you?"):
+        response = get_ai_response("Hello")
+        assert response == "Sure! How can I assist you?"
