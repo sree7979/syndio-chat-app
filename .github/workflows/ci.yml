@@ -1,17 +1,24 @@
-name: CI Pipeline
-on: push
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
 jobs:
-  test:
+  build-and-test:
     runs-on: ubuntu-22.04  # Using ubuntu-22.04 explicitly
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.9'
-      - name: Install Dependencies
-        run: |
-          pip install --upgrade pip
-          pip install fastapi uvicorn pytest  # Installing pytest here
+          python-version: "3.9"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
       - name: Run Tests
-        run: pytest  # Running tests
+        run: pytest
