@@ -1,8 +1,9 @@
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, HTTPException
+from pydantic import BaseModel
 import random
 import logging
 from sqlalchemy import create_engine, Column, Integer, String
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 
 app = FastAPI()
@@ -44,9 +45,12 @@ DUMMY_RESPONSES = [
 
 def get_ai_response(user_message: str) -> str:
     logger.info(f"Generating AI response for message: {user_message}")
-    # Example: Integrate Datadog
-    # Datadog API endpoint: Send logs here.
     return random.choice(DUMMY_RESPONSES)
+
+# Input validation model
+class ChatMessageRequest(BaseModel):
+    user: str
+    message: str
 
 @app.get("/")
 async def home():
@@ -54,39 +58,44 @@ async def home():
     return {"message": "Welcome to the Chat Application!"}
 
 @app.post("/chat/message")
-async def send_message(message: dict, db: Session = Depends(get_db)):
-    user_message = message.get("message")
-    logger.info(f"Received user message: {user_message}")
+async def send_message(request: ChatMessageRequest, db: Session = Depends(get_db)):
+    try:
+        user_message = request.message
+        logger.info(f"Received user message from {request.user}: {user_message}")
 
-    ai_response = get_ai_response(user_message)
-    logger.info(f"AI response generated: {ai_response}")
+        # Generate AI response
+        ai_response = get_ai_response(user_message)
+        logger.info(f"AI response generated: {ai_response}")
 
-    # Check if the message already exists in the database
-    existing_message = db.query(ChatMessage).filter(ChatMessage.user == "User", ChatMessage.message == user_message).first()
-    if existing_message:
-        logger.info(f"Message already exists: {user_message}")
+        # Check if the message already exists in the database
+        existing_message = db.query(ChatMessage).filter(ChatMessage.user == request.user, ChatMessage.message == user_message).first()
+        if existing_message:
+            logger.info(f"Message already exists: {user_message}")
+            return {"response": ai_response}
+
+        # Save messages to the database
+        db.add(ChatMessage(user=request.user, message=user_message))
+        db.add(ChatMessage(user="AI", message=ai_response))
+        db.commit()
+        logger.info("Messages saved successfully to database.")
+        
         return {"response": ai_response}
-
-    # Log saved messages
-    logger.info(f"Saving user message to database: {user_message}")
-    logger.info(f"Saving AI response to database: {ai_response}")
-
-    # Save messages to the database
-    db.add(ChatMessage(user="User", message=user_message))
-    db.add(ChatMessage(user="AI", message=ai_response))
-    db.commit()
-
-    logger.info(f"Messages saved successfully to database.")
-    
-    return {"response": ai_response}
+    except Exception as e:
+        logger.error(f"Error processing message: {e}")
+        raise HTTPException(status_code=500, detail="An error occurred while processing your message")
 
 @app.get("/chat/history")
 async def get_history(db: Session = Depends(get_db), skip: int = 0, limit: int = 10):
-    logger.info(f"Accessing chat history from database. Skipping {skip} messages and limiting to {limit}.")
-    messages = db.query(ChatMessage).offset(skip).limit(limit).all()
-    
-    logger.info(f"Retrieved {len(messages)} messages from the database.")
-    return {"history": [{"user": msg.user, "message": msg.message} for msg in messages]}
+    try:
+        logger.info(f"Accessing chat history from database. Skipping {skip} messages and limiting to {limit}.")
+        messages = db.query(ChatMessage).offset(skip).limit(limit).all()
+        
+        logger.info(f"Retrieved {len(messages)} messages from the database.")
+        return {"history": [{"user": msg.user, "message": msg.message} for msg in messages]}
+    except Exception as e:
+        logger.error(f"Error retrieving chat history: {e}")
+        raise HTTPException(status_code=500, detail="An error occurred while retrieving chat history")
+
 
 # Placeholder: Logs can be sent to Datadog or Splunk via their APIs.
 # Example: 
