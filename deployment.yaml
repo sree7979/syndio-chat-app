@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chat-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: chat-app
+  template:
+    metadata:
+      labels:
+        app: chat-app
+    spec:
+      containers:
+      - name: chat-app
+        image: sree095docker/chat-app
+        ports:
+        - containerPort: 8000
+        resources:
+          requests:
+            memory: "512Mi"  # Minimum memory required by the container
+            cpu: "500m"      # Minimum CPU required by the container
+          limits:
+            memory: "1Gi"    # Maximum memory the container can use
+            cpu: "1000m"     # Maximum CPU the container can use
