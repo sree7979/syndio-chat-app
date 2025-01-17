@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chat Application</title>
+    <link rel="stylesheet" href="/static/style.css"> <!-- Link to the CSS file -->
+</head>
+<body>
+    <h1>Chat Application</h1>
+    <div id="messages"></div> <!-- Display messages here -->
+    <div id="error" class="error"></div> <!-- For error messages -->
+    <div id="inputArea">
+        <input id="messageInput" type="text" placeholder="Type your message here..." onkeypress="handleKeyPress(event)">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+
+    <script src="/static/script.js"></script> <!-- Link to the JavaScript file -->
+</body>
+</html>
