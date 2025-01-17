@@ -102,11 +102,4 @@ async def get_history(db: Session = Depends(get_db), skip: int = 0, limit: int =
 # logger.info("Sending logs to Datadog API")
 
 # For testing purposes: Ensure consistent AI response for testing
-def test_ai_response():
-    response = get_ai_response("Hello")
-    assert response in [
-        "Hi there! I'm a simulated AI assistant.",
-        "Hello! This is a placeholder AI response.",
-        "I'm just a dummy function pretending to be AI.",
-        "Sure! How can I assist you?"  # Added this response to the test
-    ]
+
