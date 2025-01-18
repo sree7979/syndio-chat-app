@@ -4,7 +4,7 @@ Setup and Run Locally
 ---------------------
 Build the Docker Container:
 1. Clone this repository to your local machine.
-$ git clone https://github.com/your-username/chat-app.git
+$ git clone git@github.com:sree7979/syndio-chat-app.git
 $ cd chat-app
 2. Build the Docker container:
 $ docker build -t your-dockerhub-username/chat-app .
