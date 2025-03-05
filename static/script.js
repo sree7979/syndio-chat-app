@@ -53,5 +53,5 @@ function handleKeyPress(event) {
     }
 }
 
-// Fetch initial messages
+
 fetchMessages();
